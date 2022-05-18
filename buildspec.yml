@@ -1,0 +1,27 @@
+version: 0.2
+run-as: root
+
+
+phases:
+  pre_build:
+    commands:
+      - echo Clone the bitbucket repo...
+      - rm -rf s3-cloudfront
+      - git clone https://github.com/UrveshDomadiya7/s3-cloudfront.git
+      - cd s3-cloudfront
+      - npm install
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building...          
+      - cd s3-cloudfront
+      - npm run build 
+   
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Push to S3...
+      - cd s3-cloudfront
+      - aws s3 cp --recursive ./build s3://sis-pw-bucket/
+      - aws cloudfront create-invalidation --distribution-id ERURZLMHTNOVO --paths "/*"
+      - echo files pushed to s3 successfully...
